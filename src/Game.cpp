@@ -3,58 +3,69 @@
 #include "End.h"
 using namespace std;
 namespace Game 
-{
-	static bool gameover = false;
-	static float playerspeed = 420.0f;
+{	
+//public variables/functions
 	int screenWidth = 1000;
 	int screenHeight = 600;	
-	int currentScreen = 0;
-	static int ballradius = 7;
-	static int sizepup1 = 0;
-	static int sizepup2 = 0;
-	static int speedpup1 = 0;
-	static int speedPUP2 = 0;
-	static Vector2 pupSize = {30,30};
-	static Vector2 pupPosition;
-	static bool pupType;
+	int currentScreen = 0;	
+	void Play(void);
+	Color p2Color;
+	Color p1Color;
+	bool winner = false;
+//gameplay variables
+	static bool gameover = false;
+	static bool isPaused;
+	static bool ventanaOn = false;
+	static int lastTouch = 0;
 	static bool pupSpawn = false;
-	static Vector2 playerSize = { 15,100 };
+//ball variables
+	static int ballradius = 7;
 	static Vector2 ballspeed = {0,0};
-	static Vector2 ballposition;
+	static Vector2 ballposition;	
+	static Color ballcolor;	
+//player variables
+	static Rectangle rec1;
+	static Rectangle rec2;
+	static Vector2 playerSize = { 15,100 };
+	static float playerspeed = 420.0f;
 	static Vector2 player1Position;
 	static Vector2 player2Position;
 	static int player1Score;
 	static int player2Score;
-	void Play(void);
-	static Color ballcolor;
+	static int sizepup1 = 0;
+	static int sizepup2 = 0;
+	static int speedpup1 = 0;
+	static int speedPUP2 = 0;
+//power-up variables
+	static Rectangle PUP;
+	static Vector2 pupSize = {30,30};
+	static Vector2 pupPosition;
+	static bool pupType;
+//gameplay functions
 	static void GameUpdate(Vector2&, Vector2&, Vector2&, Vector2&, Color&, int&, int&);
 	static void Init();
 	static void GameDraw(void);
 	static void IsGameOver();
-	Color p2Color;
-	Color p1Color;
-	static bool isPaused;
-	bool winner = false;
-	static Rectangle rec1;
-	static Rectangle rec2;
-	static Rectangle PUP;
-	static bool ventanaOn = false;
-	static int lastTouch = 0;
+
+
 	static void GameUpdate(Vector2&, Vector2&, Vector2&, Vector2&, Color&, int&, int&)
 	{
 		if (!isPaused)
 		{
 			if (ballspeed.x > 0) ballcolor = p1Color;
 			if (ballspeed.x < 0) ballcolor = p2Color;
+			ballposition = { ballposition.x + (ballspeed.x * GetFrameTime()), ballposition.y + (ballspeed.y * GetFrameTime()) };
+
 			if (IsKeyDown(KEY_UP) && Game::player1Position.y > 0) player1Position.y -= (playerspeed+speedpup1) * GetFrameTime();
 			if (IsKeyDown(KEY_DOWN) && player1Position.y < screenHeight - (playerSize.y + sizepup1)) player1Position.y += (playerspeed+speedpup1) * GetFrameTime();
 			if (IsKeyDown(KEY_W) && player2Position.y > 0) player2Position.y -= (playerspeed+speedPUP2) * GetFrameTime();
 			if (IsKeyDown(KEY_S) && player2Position.y < screenHeight - (playerSize.y + sizepup2)) player2Position.y += (playerspeed + speedPUP2) * GetFrameTime();
-			ballposition = { ballposition.x + (ballspeed.x * GetFrameTime()), ballposition.y + (ballspeed.y * GetFrameTime()) };
+
 			if ((ballposition.y - ballradius) < 0 || (ballposition.y + ballradius) > (screenHeight - ballradius))
 			{
 				ballspeed.y = -ballspeed.y;
 			}
+
 			if (!pupSpawn)
 			{
 				pupPosition.x = GetRandomValue(200, screenWidth - 200 );
@@ -66,6 +77,7 @@ namespace Game
 				PUP.y = pupPosition.y;
 				pupSpawn = true;
 			}
+
 			if (ballposition.x - ballradius < 0)
 			{
 				player2Score++;
@@ -74,6 +86,7 @@ namespace Game
 				ballspeed.y = 0;
 				ballcolor = p1Color;
 			}
+
 			if (ballposition.x + ballradius > screenWidth)
 			{
 				player1Score++;
@@ -82,8 +95,10 @@ namespace Game
 				ballspeed.y = 0;
 				ballcolor = p2Color;
 			}
+
 			if (IsKeyPressed(KEY_ENTER))
 					isPaused = true;
+
 			rec1.width = playerSize.x;
 			rec1.height = playerSize.y + sizepup1;
 			rec1.x = player1Position.x;
@@ -92,6 +107,7 @@ namespace Game
 			rec2.height = playerSize.y + sizepup2;
 			rec2.x = player2Position.x;
 			rec2.y = player2Position.y;
+
 			if (CheckCollisionCircleRec(ballposition, ballradius, rec1))
 			{
 				ballspeed.x = -ballspeed.x;
@@ -99,6 +115,7 @@ namespace Game
 				ballcolor = p2Color;
 				lastTouch = 1;
 			}
+
 			if (CheckCollisionCircleRec(ballposition, ballradius, rec2))
 			{
 				ballspeed.x = -ballspeed.x;
@@ -106,6 +123,7 @@ namespace Game
 				ballcolor = p1Color;
 				lastTouch = 2;
 			}
+
 			if (CheckCollisionCircleRec(ballposition, ballradius, PUP))
 			{
 				if (lastTouch == 1)
@@ -132,6 +150,7 @@ namespace Game
 				}
 				pupSpawn = false;
 			}
+
 			IsGameOver();
 		}
 		else
@@ -140,17 +159,18 @@ namespace Game
 			isPaused = false;
 		}
 	}
-
 	static void Init()
 	{
 		
 		isPaused = false;
 		int randValue = GetRandomValue(0, 1);
+
 		if (randValue == 0)
 		{
 			ballspeed = { 800 , 0 };
 			ballcolor = p1Color;
 		}
+
 		else
 		{
 			ballspeed = {-800 , 0 };
