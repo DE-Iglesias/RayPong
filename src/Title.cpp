@@ -3,8 +3,8 @@
 using namespace Game;
 namespace Title
 {
-	int P1C = 1;
-	int P2C = 1;
+	static int P1C = 1;
+	static int P2C = 1;
 	void TitleUpdate();
 	void TitleDraw();
 
@@ -51,25 +51,25 @@ namespace Title
 		switch (P1C)
 		{
 		case 1:
-			P2Color = RED;
+			p1Color = RED;
 			break;
 		case 2:
-			P2Color = PINK;
+			p1Color = PINK;
 			break;
 		case 3:
-			P2Color = ORANGE;
+			p1Color = ORANGE;
 			break;
 		}
 		switch (P2C)
 		{
 		case 1:
-			P1Color = BLUE;
+			p2Color = BLUE;
 			break;
 		case 2:
-			P1Color = SKYBLUE;
+			p2Color = SKYBLUE;
 			break;
 		case 3:
-			P1Color = DARKPURPLE;
+			p2Color = DARKPURPLE;
 			break;
 		}
 	}
@@ -79,8 +79,8 @@ namespace Title
 		ClearBackground(LIGHTGRAY);
 		DrawText("Press Enter to Play", (screenWidth / 2) - 200, screenHeight / 4, 40, BLACK);
 		DrawText("Pick Player Colors using AD and <- ->", 150, screenHeight / 4 + 50, 40, BLACK);
-		DrawText("Player 1", (screenWidth - 700), screenHeight / 2, 30, P2Color);
-		DrawText("Player 2", (screenWidth - 400), screenHeight / 2, 30, P1Color);
+		DrawText("Player 1", (screenWidth - 700), screenHeight / 2, 30, p1Color);
+		DrawText("Player 2", (screenWidth - 400), screenHeight / 2, 30, p2Color);
 		EndDrawing();
 	}
 }

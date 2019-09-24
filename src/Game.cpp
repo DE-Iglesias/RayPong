@@ -1,106 +1,136 @@
 #include "Game.h"
 #include "Title.h"
 #include "End.h"
+using namespace std;
 namespace Game 
 {
-	bool gameover = false;
-	float playerspeed = 420.0f;
+	static bool gameover = false;
+	static float playerspeed = 420.0f;
 	int screenWidth = 1000;
 	int screenHeight = 600;	
 	int currentScreen = 0;
-	int ballradius = 7;
-	Vector2 PUPSize = {30,30};
-	Vector2 PUPPosition;
-	bool PUPType;
-	bool PUPSpawn = false;
-	Vector2 PlayerSize = { 15,100 };	
-	Vector2 ballspeed = {0,0};
-	Vector2 ballposition;	
-	Vector2 Player1Position;
-	Vector2 Player2Position;
-	int Player1Score;
-	int Player2Score;
+	static int ballradius = 7;
+	static int sizepup1 = 0;
+	static int sizepup2 = 0;
+	static int speedpup1 = 0;
+	static int speedPUP2 = 0;
+	static Vector2 pupSize = {30,30};
+	static Vector2 pupPosition;
+	static bool pupType;
+	static bool pupSpawn = false;
+	static Vector2 playerSize = { 15,100 };
+	static Vector2 ballspeed = {0,0};
+	static Vector2 ballposition;
+	static Vector2 player1Position;
+	static Vector2 player2Position;
+	static int player1Score;
+	static int player2Score;
 	void Play(void);
-	Color ballcolor;
+	static Color ballcolor;
 	static void GameUpdate(Vector2&, Vector2&, Vector2&, Vector2&, Color&, int&, int&);
 	static void Init();
 	static void GameDraw(void);
 	static void IsGameOver();
-	Color P1Color;
-	Color P2Color;
-	bool isPaused;
+	Color p2Color;
+	Color p1Color;
+	static bool isPaused;
 	bool winner = false;
-	Rectangle rec1;
-	Rectangle rec2;
-	Rectangle PUP;
-	bool ventanaOn = false;
+	static Rectangle rec1;
+	static Rectangle rec2;
+	static Rectangle PUP;
+	static bool ventanaOn = false;
+	static int lastTouch = 0;
 	static void GameUpdate(Vector2&, Vector2&, Vector2&, Vector2&, Color&, int&, int&)
 	{
 		if (!isPaused)
 		{
-			if (ballspeed.x > 0) ballcolor = P2Color;
-			if (ballspeed.x < 0) ballcolor = P1Color;
-			if (IsKeyDown(KEY_UP) && Game::Player1Position.y > 0) Player1Position.y -= playerspeed * GetFrameTime();
-			if (IsKeyDown(KEY_DOWN) && Player1Position.y < screenHeight - PlayerSize.y) Player1Position.y += playerspeed * GetFrameTime();
-			if (IsKeyDown(KEY_W) && Player2Position.y > 0) Player2Position.y -= playerspeed * GetFrameTime();
-			if (IsKeyDown(KEY_S) && Player2Position.y < screenHeight - PlayerSize.y) Player2Position.y += playerspeed * GetFrameTime();
+			if (ballspeed.x > 0) ballcolor = p1Color;
+			if (ballspeed.x < 0) ballcolor = p2Color;
+			if (IsKeyDown(KEY_UP) && Game::player1Position.y > 0) player1Position.y -= (playerspeed+speedpup1) * GetFrameTime();
+			if (IsKeyDown(KEY_DOWN) && player1Position.y < screenHeight - (playerSize.y + sizepup1)) player1Position.y += (playerspeed+speedpup1) * GetFrameTime();
+			if (IsKeyDown(KEY_W) && player2Position.y > 0) player2Position.y -= (playerspeed+speedPUP2) * GetFrameTime();
+			if (IsKeyDown(KEY_S) && player2Position.y < screenHeight - (playerSize.y + sizepup2)) player2Position.y += (playerspeed + speedPUP2) * GetFrameTime();
 			ballposition = { ballposition.x + (ballspeed.x * GetFrameTime()), ballposition.y + (ballspeed.y * GetFrameTime()) };
 			if ((ballposition.y - ballradius) < 0 || (ballposition.y + ballradius) > (screenHeight - ballradius))
 			{
 				ballspeed.y = -ballspeed.y;
 			}
-			if (!PUPSpawn)
+			if (!pupSpawn)
 			{
-				PUPPosition.x = GetRandomValue(200, screenWidth - 200 );
-				PUPPosition.y = GetRandomValue(100, screenHeight - 100);
-				PUPType = GetRandomValue(0, 1);
-				PUP.height = PUPSize.y;
-				PUP.width = PUPSize.x;
-				PUP.x = PUPPosition.x;
-				PUP.y = PUPPosition.y;
-				PUPSpawn = true;
+				pupPosition.x = GetRandomValue(200, screenWidth - 200 );
+				pupPosition.y = GetRandomValue(100, screenHeight - 100);
+				pupType = GetRandomValue(0, 1);
+				PUP.height = pupSize.y;
+				PUP.width = pupSize.x;
+				PUP.x = pupPosition.x;
+				PUP.y = pupPosition.y;
+				pupSpawn = true;
 			}
 			if (ballposition.x - ballradius < 0)
 			{
-				Player2Score++;
+				player2Score++;
 				ballposition = { (float)screenWidth / 2, (float)screenHeight / 2 };
 				ballspeed.x = -ballspeed.x;
 				ballspeed.y = 0;
-				ballcolor = P2Color;
+				ballcolor = p1Color;
 			}
 			if (ballposition.x + ballradius > screenWidth)
 			{
-				Player1Score++;
+				player1Score++;
 				ballposition = { (float)screenWidth / 2, (float)screenHeight / 2 };
 				ballspeed.x = -ballspeed.x;
 				ballspeed.y = 0;
-				ballcolor = P1Color;
+				ballcolor = p2Color;
 			}
 			if (IsKeyPressed(KEY_ENTER))
 					isPaused = true;
-			rec1.width = PlayerSize.x;
-			rec1.height = PlayerSize.y;
-			rec1.x = Player1Position.x;
-			rec1.y = Player1Position.y;
-			rec2.width = PlayerSize.x;
-			rec2.height = PlayerSize.y;
-			rec2.x = Player2Position.x;
-			rec2.y = Player2Position.y;
+			rec1.width = playerSize.x;
+			rec1.height = playerSize.y + sizepup1;
+			rec1.x = player1Position.x;
+			rec1.y = player1Position.y;
+			rec2.width = playerSize.x;
+			rec2.height = playerSize.y + sizepup2;
+			rec2.x = player2Position.x;
+			rec2.y = player2Position.y;
 			if (CheckCollisionCircleRec(ballposition, ballradius, rec1))
 			{
 				ballspeed.x = -ballspeed.x;
 				ballspeed.y = GetRandomValue(-500, 500);
-				ballcolor = P1Color;
+				ballcolor = p2Color;
+				lastTouch = 1;
 			}
 			if (CheckCollisionCircleRec(ballposition, ballradius, rec2))
 			{
 				ballspeed.x = -ballspeed.x;
 				ballspeed.y = ballspeed.y + GetRandomValue(-500, 500);
-				ballcolor = P2Color;
+				ballcolor = p1Color;
+				lastTouch = 2;
 			}
 			if (CheckCollisionCircleRec(ballposition, ballradius, PUP))
 			{
-				PUPSpawn = false;
+				if (lastTouch == 1)
+				{
+					if (pupType == 0)
+					{
+						sizepup1 += 10;
+					}
+					if (pupType == 1)
+					{
+						speedpup1 += 40;
+					}
+				}
+				if (lastTouch == 2)
+				{
+					if (pupType == 0)
+					{
+						sizepup2 += 10;
+					}
+					if (pupType == 1)
+					{
+						speedPUP2 += 40;
+					}
+				}
+				pupSpawn = false;
 			}
 			IsGameOver();
 		}
@@ -119,12 +149,12 @@ namespace Game
 		if (randValue == 0)
 		{
 			ballspeed = { 800 , 0 };
-			ballcolor = P2Color;
+			ballcolor = p1Color;
 		}
 		else
 		{
 			ballspeed = {-800 , 0 };
-			ballcolor = P1Color;
+			ballcolor = p2Color;
 		}
 		ballposition = {(float)screenWidth/2, (float)screenHeight/2};
 		if (!ventanaOn)
@@ -132,10 +162,10 @@ namespace Game
 			InitWindow(screenWidth, screenHeight, "Pong v1.0");
 			ventanaOn = true;
 		}
-		Player1Position = { (float)screenWidth - (PlayerSize.x * 3), (float)screenHeight - (PlayerSize.y + screenHeight / 3) };
-		Player2Position = { (PlayerSize.x * 2), (PlayerSize.y + screenHeight / 3) };
-		int Player1Score = 0;
-		int Player2Score = 0;
+		player1Position = { (float)screenWidth - (playerSize.x * 3), (float)screenHeight - (playerSize.y + screenHeight / 3) };
+		player2Position = { (playerSize.x * 2), (playerSize.y + screenHeight / 3) };
+		player1Score = 0;
+		player2Score = 0;
 	}
 	static void GameDraw()
 	{
@@ -144,17 +174,17 @@ namespace Game
 			if (!isPaused)
 			{
 				DrawCircleV(ballposition, ballradius, ballcolor);
-				DrawRectangleV(Player1Position, PlayerSize, P1Color);
-				DrawRectangleV(Player2Position, PlayerSize, P2Color);
-				if (PUPSpawn) 
+				DrawRectangle(player1Position.x, player1Position.y, playerSize.x, playerSize.y + sizepup1, p2Color);
+				DrawRectangle(player2Position.x, player2Position.y, playerSize.x, playerSize.y + sizepup2, p1Color);
+				if (pupSpawn) 
 				{
-					if (PUPType)
-						DrawRectangleV(PUPPosition, PUPSize, GREEN);
+					if (pupType)
+						DrawRectangleV(pupPosition, pupSize, GREEN);
 					else
-						DrawRectangleV(PUPPosition, PUPSize, BLUE);
+						DrawRectangleV(pupPosition, pupSize, MAGENTA);
 				}
-				DrawText(FormatText("%i", Player1Score), 15, 15, 20, P2Color);
-				DrawText(FormatText("%i", Player2Score), (screenWidth - 30), 15, 20, P1Color);
+				DrawText(FormatText("%i", player1Score), 15, 15, 20, p1Color);
+				DrawText(FormatText("%i", player2Score), (screenWidth - 30), 15, 20, p2Color);
 			}
 			else
 			{
@@ -165,10 +195,10 @@ namespace Game
 	}
 	void IsGameOver()
 	{
-		if (Player2Score >= 10 || Player1Score >= 10)
+		if (player2Score >= 10 || player1Score >= 10)
 		{
 			currentScreen++;
-			if (Player2Score >= 10)
+			if (player2Score >= 10)
 			{
 				winner = true;
 			}
@@ -191,15 +221,13 @@ namespace Game
 				Title::TitleDraw();
 				break;
 			case 1:
-				GameUpdate(Player1Position, Player2Position, ballspeed, ballposition, ballcolor, Player1Score, Player2Score);
+				GameUpdate(player1Position, player2Position, ballspeed, ballposition, ballcolor, player1Score, player2Score);
 				GameDraw();
 				break;
 			case 2:
 				End::EndUpdate();
 				End::EndDraw();
 				Init();
-				Player1Score = 0;
-				Player2Score = 0;
 				break;
 			}
 			if(gameover == true)
