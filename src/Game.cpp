@@ -167,13 +167,13 @@ namespace Game
 
 		if (randValue == 0)
 		{
-			ballspeed = { 800 , 0 };
+			ballspeed = { 700 , 0 };
 			ballcolor = p1Color;
 		}
 
 		else
 		{
-			ballspeed = {-800 , 0 };
+			ballspeed = {-700 , 0 };
 			ballcolor = p2Color;
 		}
 		ballposition = {(float)screenWidth/2, (float)screenHeight/2};
