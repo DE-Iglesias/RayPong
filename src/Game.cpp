@@ -8,7 +8,7 @@ namespace Game
 	int screenWidth = 1000;
 	int screenHeight = 600;	
 	int currentScreen = 0;	
-	void Play(void);
+	void Play();
 	Color p2Color;
 	Color p1Color;
 	bool winner = false;
@@ -44,7 +44,7 @@ namespace Game
 //gameplay functions
 	static void GameUpdate(Vector2&, Vector2&, Vector2&, Vector2&, Color&, int&, int&);
 	static void Init();
-	static void GameDraw(void);
+	static void GameDraw();
 	static void IsGameOver();
 
 
